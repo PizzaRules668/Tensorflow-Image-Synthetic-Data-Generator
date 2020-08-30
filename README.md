@@ -1,8 +1,8 @@
 # Tensorflow Image Synthetic Data Generator
 ## Setup
 Download the make.py script and put it in your working directory.
-Make a text file with links to all of the images you would like to download.
-I used [Fatkun Batch Download Image (Chrome Extension)](https://chrome.google.com/webstore/detail/fatkun-batch-download-ima/nnjjahlikiabnchcpehcpkdeckfgnohf) and saved it to a text file
+<br/>Make a text file with links to all of the images you would like to download.
+<br/>I used [Fatkun Batch Download Image (Chrome Extension)](https://chrome.google.com/webstore/detail/fatkun-batch-download-ima/nnjjahlikiabnchcpehcpkdeckfgnohf) and saved it to a text file
 ## Running
 ``` python
 arguments:
