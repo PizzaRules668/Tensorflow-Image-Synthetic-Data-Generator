@@ -6,35 +6,50 @@ import random
 import argparse
 import numpy as np
 
-def load():
+def load(totalimg):
     num = 0
-    for file in glob.glob(args.b + "*.jpg"):
-        print(file)
-        img = cv2.imread(file, cv2.IMREAD_UNCHANGED)
+    count = 1
+    totalimg = totalimg * args.n
 
-        rocket = cv2.imread(args.i, cv2.IMREAD_UNCHANGED)
-        scale = random.randint(20, 50)
-        rocket = resize(rocket, scale)
+    for a in range(0, args.n):
+        for file in glob.glob(args.b + "*.jpg"):
+            print(file)
+            img = cv2.imread(file, cv2.IMREAD_UNCHANGED)
 
-        pwd = os.popen("cd").read()
+            rocket = cv2.imread(args.i, cv2.IMREAD_UNCHANGED)
+            scale = random.randint(20, 50)
+            rocket = resize(rocket, scale)
 
-        try:
-            pos = (random.randint(0, img.shape[1]), random.randint(0, img.shape[0]))
-            print("At: X:" + str(pos[0]) + " Y:" + str(pos[1]) + " Scale: " + str(scale))
+            pwd = os.popen("cd").read()
 
-            insert(img, rocket[:, :, 0:3], pos, rocket[:, :, 3] / 255.0)
-            
-            if not os.path.exists(args.b):
-                os.makedirs(args.b)
+            try:
+                pos = (random.randint(0, img.shape[1]), random.randint(0, img.shape[0]))
+                print("At: X:" + str(pos[0]) + " Y:" + str(pos[1]) + " Scale: " + str(scale))
 
-            imagepath = args.t + file
+                insert(img, rocket[:, :, 0:3], pos, rocket[:, :, 3] / 255.0)
+                
+                if not os.path.exists(args.b):
+                    os.makedirs(args.b) 
 
-            write(file, imagepath, pos, img, rocket, scale)
-            cv2.imwrite(imagepath, img)
-        except:
-            print("Failed to put on " + file)
+                if count / totalimg * 100 <= 20.0:
+                    imagepath = args.t + str(count) + ".jpg"
+                    xmlpath = args.t + "/" + str(count) + ".xml"
+                elif count / totalimg * 100 >= 20.0:
+                    imagepath = args.r + str(count) + ".jpg"
+                    xmlpath = args.r + "/" + str(count) + ".xml"
+
+                print(str(round((count / totalimg) * 100, 5)) + "%")
+
+                count += 1
+
+                print(str(imagepath))
+
+                write(xmlpath, imagepath, pos, img, rocket, scale)
+                cv2.imwrite(imagepath, img)
+            except Exception as e:
+                print("Failed to open " + file)
+                print(e)
         
-
 def download(link):
     file = open(args.l, "r")
     links = file.readlines()
@@ -84,7 +99,7 @@ def insert(img, img_overlay, pos, alpha_mask):
 
 def write(filename, folder, pos, background, front, scale):
     x, y = pos
-    file = open(filename.rstrip(".jpg")+".xml", "w")
+    file = open(filename, "w")
     file.write('''<annotation>
     <folder>{}</folder>
     <filename>{}</filename>
@@ -112,7 +127,7 @@ def write(filename, folder, pos, background, front, scale):
 	</object>
 </annotation>'''.format(folder, 
                         filename, 
-                        args.b, 
+                        folder, 
                         str(background.shape[1]), 
                         str(background.shape[0]), 
                         str(background.shape[2]), 
@@ -123,16 +138,26 @@ def write(filename, folder, pos, background, front, scale):
                         str(y + front.shape[0])))
     file.close()
 
+def countimg():
+    lcount = 0
+    for file in glob.glob(args.b + "*.jpg"):
+        lcount += 1
+
+    return lcount
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Makes training data for tensorflow')
     parser.add_argument("-b", type=str, required=True, help="Path for the background images")
     parser.add_argument("-i", type=str, required=True, help="Image you would like to detect")
-    parser.add_argument("-t", type=str, required=True, help="Where the Images will go")
+    parser.add_argument("-t", type=str, required=True, help="Training dir")
+    parser.add_argument("-r", type=str, required=True, help="Testing dir")
     parser.add_argument("-o", type=str, required=True, help="Objects name")
 
     parser.add_argument("-d", type=bool, help="Download Images")
-    parser.add_argument("-l", type=str, help="Link to download the images")
+    parser.add_argument("-l", type=str, help="Text file that has links to all of the images you would like to download")
+
+    parser.add_argument("-n", type=int, default=1, help="Number of times each background image will be used")
 
     args = parser.parse_args()
 
@@ -142,4 +167,6 @@ if __name__ == '__main__':
         print("Also Delete images that are small")
         input()
     
-    load()
+    totalimg = countimg()
+
+    load(totalimg)
