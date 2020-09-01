@@ -35,25 +35,71 @@ def load(totalimg):
                 if count / totalimg * 100 <= args.p:
                     imagepath = args.t + str(count) + ".jpg"
                     xmlpath = args.t + str(count) + ".xml"
+                    folder = args.t
+
                 elif count / totalimg * 100 >= args.p:
                     imagepath = args.r + str(count) + ".jpg"
                     xmlpath = args.r + str(count) + ".xml"
+                    folder = args.r
+
+                folder = folder.split("/")
 
                 print(str(round((count / totalimg) * 100, 5)) + "%")
-
-                count += 1
 
                 imagepath = imagepath.replace("/", "\\")
                 xmlpath = xmlpath.replace("/", "\\")
 
                 print(str(imagepath))
 
-                write(xmlpath, imagepath, pos, img, rocket, scale, pwd)
+                write(xmlpath, folder[-2], pos, img, rocket, scale, pwd, count)
                 cv2.imwrite(imagepath, img)
             except Exception as e:
                 print("Failed to open " + file)
                 print(e)
+            
+            count += 1
         
+def write(filename, folder, pos, background, front, scale, pwd, count):
+    x, y = pos
+    file = open(filename, "w")
+    file.write('''<annotation>
+    <folder>{}</folder>
+    <filename>{}</filename>
+    <path>{}</path>
+    <source>
+        <database>Unknown</database>
+	</source>
+	<size>
+		<width>{}</width>
+		<height>{}</height>
+		<depth>{}</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>{}</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>{}</xmin>
+			<ymin>{}</ymin>
+			<xmax>{}</xmax>
+			<ymax>{}</ymax>
+		</bndbox>
+	</object>
+</annotation>'''.format(folder, 
+                        str(count)+".jpg", 
+                        pwd + folder, 
+                        str(background.shape[1]), 
+                        str(background.shape[0]), 
+                        str(background.shape[2]), 
+                        args.o, 
+                        str(x), 
+                        str(y), 
+                        str(x + front.shape[1]), 
+                        str(y + front.shape[0])))
+    file.close()
+
 def download(link):
     file = open(args.l, "r")
     links = file.readlines()
@@ -100,47 +146,6 @@ def insert(img, img_overlay, pos, alpha_mask):
             img[y1:y2, x1:x2, c] = (alpha * img_overlay[y1o:y2o, x1o:x2o, c] + alpha_inv * img[y1:y2, x1:x2, c])
         except Exception as e:
             print(str(e))
-
-def write(filename, folder, pos, background, front, scale, pwd):
-    x, y = pos
-    file = open(filename, "w")
-    file.write('''<annotation>
-    <folder>{}</folder>
-    <filename>{}</filename>
-    <path>{}</path>
-    <source>
-        <database>Unknown</database>
-	</source>
-	<size>
-		<width>{}</width>
-		<height>{}</height>
-		<depth>{}</depth>
-	</size>
-	<segmented>0</segmented>
-	<object>
-		<name>{}</name>
-		<pose>Unspecified</pose>
-		<truncated>0</truncated>
-		<difficult>0</difficult>
-		<bndbox>
-			<xmin>{}</xmin>
-			<ymin>{}</ymin>
-			<xmax>{}</xmax>
-			<ymax>{}</ymax>
-		</bndbox>
-	</object>
-</annotation>'''.format(folder, 
-                        filename, 
-                        pwd + folder, 
-                        str(background.shape[1]), 
-                        str(background.shape[0]), 
-                        str(background.shape[2]), 
-                        args.o, 
-                        str(x), 
-                        str(y), 
-                        str(x + front.shape[1]), 
-                        str(y + front.shape[0])))
-    file.close()
 
 def countimg():
     lcount = 0
