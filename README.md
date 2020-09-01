@@ -9,10 +9,13 @@ arguments:
   -h, --help  show this help message and exit
   -b B        Path for the background images
   -i I        Image you would like to detect
-  -t T        Where the Images will go
+  -t T        Training dir
+  -r R        Testing dir
   -o O        Objects name
+  -l L        Text file that has links to all of the images you would like to download
   -d D        Download Images
-  -l L        Link to download the images
+  -n N        Number of times each background image will be used
+  -p P        Percent of images in train dir
 ```
 Example
 ``` python
