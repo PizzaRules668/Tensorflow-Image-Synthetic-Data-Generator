@@ -19,5 +19,5 @@ arguments:
 ```
 Example
 ``` python
-python make.py -b background/ -i myimg.png -t images/ -o Myobject -d True -l link.txt
+python make.py -b img/ -i rocket.png -t images/train/ -r images/test/ -o Rocket -l links.txt -d True -n 2
 ```
