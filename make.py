@@ -31,10 +31,10 @@ def load(totalimg):
                 if not os.path.exists(args.b):
                     os.makedirs(args.b) 
 
-                if count / totalimg * 100 <= 20.0:
+                if count / totalimg * 100 <= args.p:
                     imagepath = args.t + str(count) + ".jpg"
                     xmlpath = args.t + "/" + str(count) + ".xml"
-                elif count / totalimg * 100 >= 20.0:
+                elif count / totalimg * 100 >= args.p:
                     imagepath = args.r + str(count) + ".jpg"
                     xmlpath = args.r + "/" + str(count) + ".xml"
 
@@ -154,10 +154,11 @@ if __name__ == '__main__':
     parser.add_argument("-r", type=str, required=True, help="Testing dir")
     parser.add_argument("-o", type=str, required=True, help="Objects name")
 
-    parser.add_argument("-d", type=bool, help="Download Images")
     parser.add_argument("-l", type=str, help="Text file that has links to all of the images you would like to download")
+    parser.add_argument("-d", type=bool, help="Download Images")
 
     parser.add_argument("-n", type=int, default=1, help="Number of times each background image will be used")
+    parser.add_argument("-p", type=float, default=20, help="Percent of images in train dir")
 
     args = parser.parse_args()
 
