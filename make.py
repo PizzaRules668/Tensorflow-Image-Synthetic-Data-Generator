@@ -20,7 +20,8 @@ def load(totalimg):
             scale = random.randint(20, 50)
             rocket = resize(rocket, scale)
 
-            pwd = os.popen("cd").read()
+            pwd = os.popen("cd").read() + "\\"
+            pwd = pwd.replace("\n", "")
 
             try:
                 pos = (random.randint(0, img.shape[1]), random.randint(0, img.shape[0]))
@@ -33,18 +34,21 @@ def load(totalimg):
 
                 if count / totalimg * 100 <= args.p:
                     imagepath = args.t + str(count) + ".jpg"
-                    xmlpath = args.t + "/" + str(count) + ".xml"
+                    xmlpath = args.t + str(count) + ".xml"
                 elif count / totalimg * 100 >= args.p:
                     imagepath = args.r + str(count) + ".jpg"
-                    xmlpath = args.r + "/" + str(count) + ".xml"
+                    xmlpath = args.r + str(count) + ".xml"
 
                 print(str(round((count / totalimg) * 100, 5)) + "%")
 
                 count += 1
 
+                imagepath = imagepath.replace("/", "\\")
+                xmlpath = xmlpath.replace("/", "\\")
+
                 print(str(imagepath))
 
-                write(xmlpath, imagepath, pos, img, rocket, scale)
+                write(xmlpath, imagepath, pos, img, rocket, scale, pwd)
                 cv2.imwrite(imagepath, img)
             except Exception as e:
                 print("Failed to open " + file)
@@ -97,7 +101,7 @@ def insert(img, img_overlay, pos, alpha_mask):
         except Exception as e:
             print(str(e))
 
-def write(filename, folder, pos, background, front, scale):
+def write(filename, folder, pos, background, front, scale, pwd):
     x, y = pos
     file = open(filename, "w")
     file.write('''<annotation>
@@ -127,7 +131,7 @@ def write(filename, folder, pos, background, front, scale):
 	</object>
 </annotation>'''.format(folder, 
                         filename, 
-                        folder, 
+                        pwd + folder, 
                         str(background.shape[1]), 
                         str(background.shape[0]), 
                         str(background.shape[2]), 
