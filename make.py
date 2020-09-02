@@ -4,7 +4,6 @@ import os
 import urllib.request
 import random
 import argparse
-import numpy as np
 
 def load(totalimg):
     num = 0
