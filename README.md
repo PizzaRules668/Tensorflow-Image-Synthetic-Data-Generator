@@ -2,7 +2,7 @@
 ## Setup
 Download the make.py script and put it in your working directory.
 <br/>Make a text file with links to all of the images you would like to download.
-<br/>I used [Fatkun Batch Download Image (Chrome Extension)](https://chrome.google.com/webstore/detail/fatkun-batch-download-ima/nnjjahlikiabnchcpehcpkdeckfgnohf) and saved it to a text file
+<br/>I used [Fatkun Batch Download Image (Chrome Extension)](https://chrome.google.com/webstore/detail/fatkun-batch-download-ima/nnjjahlikiabnchcpehcpkdeckfgnohf) and put all link in a text file
 ## Running
 ``` python
 arguments:
