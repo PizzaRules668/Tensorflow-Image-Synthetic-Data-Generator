@@ -28,7 +28,7 @@ def load(totalimg):
 
                 print("At: X:" + str(pos[0]) + " Y:" + str(pos[1]) + " Scale: " + str(scale))
 
-                insert(img, rocket[:, :, 0:3], pos, rocket[:, :, 3] / 255.0, angle)
+                insert(img, rocket[:, :, 0:3], pos, rocket[:, :, 3] / 255.0)
                 
                 if not os.path.exists(args.b):
                     os.makedirs(args.b) 
