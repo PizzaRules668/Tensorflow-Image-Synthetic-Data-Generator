@@ -4,6 +4,7 @@ import os
 import urllib.request
 import random
 import argparse
+import numpy as np
 
 def load(totalimg):
     num = 0
@@ -24,9 +25,10 @@ def load(totalimg):
 
             try:
                 pos = (random.randint(0, img.shape[1]), random.randint(0, img.shape[0]))
+
                 print("At: X:" + str(pos[0]) + " Y:" + str(pos[1]) + " Scale: " + str(scale))
 
-                insert(img, rocket[:, :, 0:3], pos, rocket[:, :, 3] / 255.0)
+                insert(img, rocket[:, :, 0:3], pos, rocket[:, :, 3] / 255.0, angle)
                 
                 if not os.path.exists(args.b):
                     os.makedirs(args.b) 
@@ -50,7 +52,9 @@ def load(totalimg):
 
                 print(str(imagepath))
 
-                write(xmlpath, folder[-2], pos, img, rocket, scale, pwd, count)
+                modpos, pos = IfToLarge(pos, rocket, img)
+
+                write(xmlpath, folder[-2], pos, img, rocket, scale, pwd, count, modpos)
                 cv2.imwrite(imagepath, img)
             except Exception as e:
                 print("Failed to open " + file)
@@ -58,7 +62,7 @@ def load(totalimg):
             
             count += 1
         
-def write(filename, folder, pos, background, front, scale, pwd, count):
+def write(filename, folder, pos, background, front, scale, pwd, count, modpos):
     x, y = pos
     file = open(filename, "w")
     file.write('''<annotation>
@@ -95,9 +99,24 @@ def write(filename, folder, pos, background, front, scale, pwd, count):
                         args.o, 
                         str(x), 
                         str(y), 
-                        str(x + front.shape[1]), 
-                        str(y + front.shape[0])))
+                        str(modpos[0]), 
+                        str(modpos[1])))
     file.close()
+
+def IfToLarge(pos, front, back):
+    oldx = pos[0]
+    oldy = pos[1]
+
+    x = oldx + front.shape[1]
+    y = oldy + front.shape[0]
+
+    while x > back.shape[1]:
+        x -= 1
+
+    while y > back.shape[0]:
+        y -= 1
+
+    return (x, y), (oldx, oldy)
 
 def download(link):
     file = open(args.l, "r")
@@ -153,26 +172,6 @@ def countimg():
 
     return lcount
 
-def xml_to_csv(path):
-    xml_list = []
-    for xml_file in glob.glob(path + '/*.xml'):
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
-        for member in root.findall('object'):
-            value = (root.find('filename').text,
-                     int(root.find('size')[0].text),
-                     int(root.find('size')[1].text),
-                     member[0].text,
-                     int(member[4][0].text),
-                     int(member[4][1].text),
-                     int(member[4][2].text),
-                     int(member[4][3].text)
-                     )
-            xml_list.append(value)
-    column_name = ['filename', 'width', 'height', 'class', 'xmin', 'ymin', 'xmax', 'ymax']
-    xml_df = pd.DataFrame(xml_list, columns=column_name)
-    return xml_df
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Makes training data for tensorflow')
@@ -199,9 +198,3 @@ if __name__ == '__main__':
     totalimg = countimg()
 
     load(totalimg)
-
-    for folder in ['train','test']:
-        image_path = os.path.join(os.getcwd(), ('images/' + folder))
-        xml_df = xml_to_csv(image_path)
-        xml_df.to_csv(('images/' + folder + '_labels.csv'), index=None)
-        print('Successfully converted xml to csv.')
