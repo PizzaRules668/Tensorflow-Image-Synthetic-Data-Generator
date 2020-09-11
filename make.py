@@ -49,12 +49,12 @@ def edit(totalimg):
                     if not os.path.exists(args.b):
                         os.makedirs(args.b) 
 
-                    if count / totalimg * 100 <= args.p:
+                    if count / totalimg * 100 >= args.p:
                         imagepath = args.t + str(count) + ".jpg"
                         xmlpath = args.t + str(count) + ".xml"
                         folder = args.t
 
-                    elif count / totalimg * 100 >= args.p:
+                    elif count / totalimg * 100 <= args.p:
                         imagepath = args.r + str(count) + ".jpg"
                         xmlpath = args.r + str(count) + ".xml"
                         folder = args.r
@@ -235,7 +235,7 @@ if __name__ == '__main__':
     parser.add_argument("-d", type=bool, help="Download Images")
 
     parser.add_argument("-n", type=int, default=1, help="Number of times each background image will be used")
-    parser.add_argument("-p", type=float, default=20, help="Percent of images in train dir")
+    parser.add_argument("-p", type=float, default=20, help="Percent of images in test dir")
 
     parser.add_argument("-c", type=bool, default=False, help="Convert xml to csv")
     parser.add_argument("-f", type=str, help="Dir you want the csv files to be made")
